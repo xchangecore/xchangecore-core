@@ -1,0 +1,256 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.leidos.xchangecore.core</groupId>
+    <artifactId>parent</artifactId>
+    <packaging>pom</packaging>
+    <name>xChangeCore's parent pom</name>
+    <version>1.0.0</version>
+
+    <modules>
+        <!-- these jar don't need to re-compile unless you plan to change the schemas
+            <module>xmlbeans-infrastructure</module>
+            <module>xmlbeans-edxl_rm</module>
+            <module>xmlbeans-em</module>
+            <module>xmlbeans-have</module>
+        -->
+        <module>infra-services</module>
+        <module>infra-xmpp</module>
+        <!-- this is the xmpp node cleanup tool -->
+        <module>infra-xmpp-tools</module>
+        <module>em-services</module>
+        <module>em-processes</module>
+        <module>em-war</module>
+    </modules>
+
+    <properties>
+        <Implementation-Version>1.0.0</Implementation-Version>
+
+        <spring.version>3.0.6.RELEASE</spring.version>
+        <spring-ws.version>2.0.3.RELEASE</spring-ws.version>
+        <spring-security.version>2.0.8.RELEASE</spring-security.version>
+        <spring-integrations.version>2.0.5.RELEASE</spring-integrations.version>
+        <hibernate.version>3.3.1.GA</hibernate.version>
+        <hibernate-annotation.version>3.4.0.GA</hibernate-annotation.version>
+        <smack.version>3.2.1</smack.version>
+        <gx.version>1.2.6</gx.version>
+        <xmlbeans-em.version>1.1.4</xmlbeans-em.version>
+        <xmlbeans-have.version>1.1.2</xmlbeans-have.version>
+        <xmlbeans-infrastructure.version>1.2.1</xmlbeans-infrastructure.version>
+        <xmlbeans-edxl_rm.version>1.0.0</xmlbeans-edxl_rm.version>
+        <infra-xmpp.version>2.0.0</infra-xmpp.version>
+        <infra-services.version>2.0.0</infra-services.version>
+        <em-services.version>2.0.0</em-services.version>
+        <em-processes.version>2.0.0</em-processes.version>
+        <em-war.version>2.0.0</em-war.version>
+
+        <github.global.server>github</github.global.server>
+        <ldap.domain>xchangecore</ldap.domain>
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>xchangecore-mvn-repo</id>
+            <name>The global repository for the general purpose</name>
+            <url>https://github.com/huangdy/xchangecore-mvn-repo/raw/master</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.4.2</version>
+        </dependency>
+    </dependencies>
+
+
+    <profiles>
+
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <log.file.directory>Logs</log.file.directory>
+                <install.dir>%INSTALL_HOME%\ServerApps\xchangecore</install.dir>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>unix</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <log.file.directory>/tmp</log.file.directory>
+                <install.dir>/usr/share/tomcat7/webapps/xchangecore</install.dir>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>mysql</id>
+            <dependencies>
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>5.1.34</version>
+                </dependency>
+            </dependencies>
+            <properties>
+                <hibernate.dialect>org.hibernate.dialect.MySQL5Dialect</hibernate.dialect>
+                <jdbc.driverClassName>com.mysql.jdbc.Driver</jdbc.driverClassName>
+                <jdbc.url>jdbc:mysql://localhost:3306/core</jdbc.url>
+            </properties>
+        </profile>
+
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <id>mssql</id>
+            <dependencies>
+                <dependency>
+                    <groupId>net.sourceforge.jtds</groupId>
+                    <artifactId>jtds</artifactId>
+                    <version>1.2</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.microsoft.sqlserver</groupId>
+                    <artifactId>sqljdbc</artifactId>
+                    <version>4.1</version>
+                </dependency>
+            </dependencies>
+            <properties>
+                <hibernate.dialect>org.hibernate.dialect.SQLServerDialect</hibernate.dialect>
+                <jdbc.driverClassName>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc.driverClassName>
+                <jdbc.url>jdbc:sqlserver://127.0.0.1:1433;databaseName=core</jdbc.url>
+            </properties>
+        </profile>
+
+    </profiles>
+
+    <build>
+
+        <testResources>
+            <testResource>
+                <filtering>true</filtering>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+        
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>contexts/</exclude>
+                </excludes>
+            </resource>
+            <!-- perform the filtering -->
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources/contexts</directory>
+                <targetPath>contexts</targetPath>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.10</version>
+                <configuration>
+                    <!-- git commit message -->
+                    <message>Maven artifacts for ${project.version}</message>
+                    <!-- disable webpage processing -->
+                    <noJekyll>true</noJekyll>
+                    <!-- matches distribution management repository url above -->
+                    <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+                    <!-- remote branch name -->
+                    <branch>refs/heads/master</branch>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                    <!-- don't delete old artifacts -->
+                    <merge>true</merge>
+                    <!-- github repo name -->
+                    <repositoryName>xchangecore-mvn-repo</repositoryName>
+                    <!-- github username -->
+                    <repositoryOwner>huangdy</repositoryOwner>
+                </configuration>
+                <executions>
+                    <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy'
+                        phase -->
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>deploy</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+                <configuration>
+                    <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xmlbeans-maven-plugin</artifactId>
+                <version>2.3.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>xmlbeans</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <inherited>true</inherited>
+                <configuration>
+                    <schemaDirectory>src/main/xsd</schemaDirectory>
+                    <memoryMaximumSize>1024m</memoryMaximumSize>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
