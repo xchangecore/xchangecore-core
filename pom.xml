@@ -63,7 +63,7 @@
         <repository>
             <id>xchangecore-mvn-repo</id>
             <name>The global repository for the general purpose</name>
-            <url>https://github.com/huangdy/xchangecore-mvn-repo/raw/master</url>
+            <url>https://github.com/xchangecore/xchangecore-mvn-repo/raw/master</url>
         </repository>
     </repositories>
 
